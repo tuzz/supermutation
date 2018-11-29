@@ -3,8 +3,10 @@
 #[macro_use]
 extern crate lazy_static;
 extern crate croaring;
+extern crate lehmer;
 
 mod candidate;
+mod symmetry;
 mod util;
 
 use util::Util;

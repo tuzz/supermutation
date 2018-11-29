@@ -7,3 +7,4 @@ edition = "2018"
 [dependencies]
 croaring = "0.3.7"
 lazy_static = "1.2.0"
+lehmer = "3.0.0"

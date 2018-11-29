@@ -5,7 +5,7 @@ pub struct Util {
 impl Util {
     pub fn factorial(n: usize) -> usize {
         match n {
-            1 => 1,
+            0 => 1,
             _ => n * Self::factorial(n - 1),
         }
     }
