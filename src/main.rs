@@ -2,7 +2,9 @@
 
 #[macro_use]
 extern crate lazy_static;
+extern crate croaring;
 
+mod candidate;
 mod util;
 
 use util::Util;

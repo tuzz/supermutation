@@ -5,4 +5,5 @@ authors = ["Chris Patuzzo <chris@patuzzo.co.uk>"]
 edition = "2018"
 
 [dependencies]
+croaring = "0.3.7"
 lazy_static = "1.2.0"
