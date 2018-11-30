@@ -6,7 +6,7 @@ struct Candidate {
 }
 
 lazy_static! {
-    static ref CAPACITY: u32 = (*FACTORIAL + *N - 2) as u32;
+    static ref CAPACITY: u32 = (*FACTORIAL + *N - 1) as u32;
 }
 
 impl Candidate {

@@ -21,6 +21,7 @@ mod seed {
         assert_eq!(subject.bitmap.contains(120), true);
         assert_eq!(subject.bitmap.contains(121), true);
         assert_eq!(subject.bitmap.contains(122), true);
-        assert_eq!(subject.bitmap.contains(123), false);
+        assert_eq!(subject.bitmap.contains(123), true);
+        assert_eq!(subject.bitmap.contains(124), false);
     }
 }
