@@ -1,14 +1,15 @@
+use croaring::Bitmap;
 use lehmer::Lehmer;
 use std::iter::once;
 use super::util::Util;
-use super::N;
+use super::{N, FACTORIAL};
 
-struct Symmetry {
-    pub mappings: Vec<Vec<Vec<u8>>>,
+pub struct Symmetry {
+    mappings: Vec<Vec<Vec<u8>>>,
 }
 
 lazy_static! {
-    static ref SYMMETRY: Symmetry = Symmetry::precompute(*N);
+    pub static ref SYMMETRY: Symmetry = Symmetry::precompute(*N);
 }
 
 impl Symmetry {
@@ -38,6 +39,34 @@ impl Symmetry {
                 Lehmer::from_permutation(&mapped).to_decimal() as u8
             }).collect()
         })
+    }
+
+    fn mapping(&self, symbol: usize, bitmap: &Bitmap) -> &Vec<u8> {
+        let mappings = &self.mappings[symbol];
+
+        if mappings.len() == 1 {
+            return &mappings[0]
+        }
+
+        let mut choices: Vec<usize> = (0..mappings.len()).collect();
+
+        for i in 0..mappings[0].len() {
+            let bit_is_set = |c: &usize| {
+                bitmap.contains(mappings[*c][i] as u32)
+            };
+
+            if !choices.iter().any(bit_is_set) {
+                continue;
+            }
+
+            choices.drain_filter(|c| !bit_is_set(c));
+
+            if choices.len() == 1 {
+                break;
+            }
+        }
+
+        &mappings[choices[0]]
     }
 
     fn map_transpositions<F>(n: usize, f: F) -> Vec<Vec<Vec<u8>>>

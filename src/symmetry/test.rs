@@ -75,3 +75,43 @@ mod mappings {
         ]]]);
     }
 }
+
+mod mapping {
+    use super::*;
+
+    // The following examples consider the **32 transpositions: { 0132, 1032}
+
+    fn first() -> Vec<u8> {
+        vec![1,0,4,5,2,3,7,6,10,11,8,9,18,19,20,21,22,23,12,13,14,15,16,17]
+    }
+
+    fn second() -> Vec<u8> {
+        vec![7,6,10,11,8,9,1,0,4,5,2,3,20,21,18,19,23,22,14,15,12,13,17,16]
+    }
+
+    lazy_static! {
+        static ref SUBJECT: Subject = Subject::precompute(4);
+    }
+
+    fn mapping(slice: &[u32]) -> &Vec<u8> {
+        SUBJECT.mapping(2, &Bitmap::of(slice))
+    }
+
+    #[test]
+    fn it_chooses_the_mapping_resulting_in_the_bitset_with_leftmost_bits_set() {
+        assert_eq!(mapping(&[0]), &first());
+        assert_eq!(mapping(&[1]), &first());
+        assert_eq!(mapping(&[6]), &second());
+        assert_eq!(mapping(&[7]), &second());
+
+        assert_eq!(mapping(&[1, 7]), &first());
+        assert_eq!(mapping(&[0, 7]), &second());
+        assert_eq!(mapping(&[0, 6]), &first());
+        assert_eq!(mapping(&[1, 6]), &first());
+
+        assert_eq!(mapping(&[4, 10, 17]), &second());
+        assert_eq!(mapping(&[4, 10, 16, 17]), &first());
+
+        assert_eq!(mapping(&[]), &first());
+    }
+}

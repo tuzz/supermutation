@@ -1,4 +1,5 @@
 #![feature(uniform_paths)]
+#![feature(drain_filter)]
 
 #[macro_use]
 extern crate lazy_static;
