@@ -17,7 +17,7 @@ impl Symmetry {
         Symmetry { mappings: Self::combined_mappings(n) }
     }
 
-    fn mapping(&self, symbol: usize, bitmap: &Bitmap) -> &Vec<u32> {
+    pub fn mapping(&self, symbol: usize, bitmap: &Bitmap) -> &Vec<u32> {
         let mappings = &self.mappings[symbol];
 
         if mappings.len() == 1 {
