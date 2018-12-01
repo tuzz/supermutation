@@ -151,3 +151,32 @@ mod expand {
         assert_eq!(counter_bits(&candidate.expand(3)), &[T, F, F]);
     }
 }
+
+mod ord {
+    use super::*;
+
+    #[test]
+    fn it_consistently_orders_candidates() {
+        let subject = Subject::seed();
+
+        let a = subject.expand(0);
+        let b = subject.expand(1);
+        let c = subject.expand(2);
+        let d = subject.expand(0);
+
+        // Order is total and antisymmetric:
+        assert!(a < b);
+        assert!(!(a == b));
+        assert!(!(a > b));
+
+        // Order is transistive:
+        assert!(a < c);
+        assert!(c < b);
+        assert!(a < b);
+
+        // Order is consistent for the same bitmap:
+        assert!(a == d);
+        assert!(!(a < d));
+        assert!(!(a > d));
+    }
+}
