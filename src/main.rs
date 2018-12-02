@@ -14,6 +14,7 @@ mod search;
 mod symmetry;
 mod util;
 
+use symmetry::Symmetry;
 use util::Util;
 
 lazy_static! {
@@ -21,6 +22,7 @@ lazy_static! {
     static ref SYMBOLS: usize = *N - 1;
     static ref FACTORIAL: usize = Util::factorial(*N);
     static ref CAPACITY: u32 = (*FACTORIAL + *N - 2) as u32;
+    static ref SYMMETRY: Symmetry = Symmetry::precompute(*N);
 }
 
 fn main() {

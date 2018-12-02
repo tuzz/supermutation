@@ -1,7 +1,6 @@
 use croaring::Bitmap;
 use std::cmp::Ordering::{self, Equal};
-use super::{FACTORIAL, CAPACITY};
-use super::symmetry::SYMMETRY;
+use super::{FACTORIAL, CAPACITY, SYMMETRY};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Candidate {

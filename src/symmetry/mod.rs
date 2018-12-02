@@ -2,18 +2,13 @@ use croaring::Bitmap;
 use lehmer::Lehmer;
 use std::iter::{once, repeat};
 use super::util::Util;
-use super::N;
 
 pub struct Symmetry {
     mappings: Vec<Vec<Vec<u32>>>,
 }
 
-lazy_static! {
-    pub static ref SYMMETRY: Symmetry = Symmetry::precompute(*N);
-}
-
 impl Symmetry {
-    fn precompute(n: usize) -> Symmetry {
+    pub fn precompute(n: usize) -> Symmetry {
         Symmetry { mappings: Self::combined_mappings(n) }
     }
 
