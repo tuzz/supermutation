@@ -115,3 +115,18 @@ mod next {
         }
     }
 }
+
+mod len {
+    use super::*;
+
+    #[test]
+    fn it_returns_the_number_of_candidates_in_the_open_set() {
+        let candidate = Candidate::seed();
+
+        let mut subject = Subject::new();
+        assert_eq!(subject.len(), 0);
+
+        subject.add(candidate, 12, 34);
+        assert_eq!(subject.len(), 1);
+    }
+}

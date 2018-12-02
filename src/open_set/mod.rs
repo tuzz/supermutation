@@ -31,6 +31,10 @@ impl OpenSet {
 
         Some((candidate, g_cost))
     }
+
+    pub fn len(&self) -> usize {
+        self.candidates.len()
+    }
 }
 
 #[cfg(test)]

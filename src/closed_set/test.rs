@@ -33,3 +33,18 @@ mod contains {
         assert_eq!(subject.contains(&second), false);
     }
 }
+
+mod len {
+    use super::*;
+
+    #[test]
+    fn it_returns_the_number_of_candidates_in_the_closed_set() {
+        let candidate = Candidate::seed();
+
+        let mut subject = Subject::new();
+        assert_eq!(subject.len(), 0);
+
+        subject.add(candidate);
+        assert_eq!(subject.len(), 1);
+    }
+}

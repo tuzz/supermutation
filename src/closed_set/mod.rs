@@ -17,6 +17,10 @@ impl ClosedSet {
     pub fn contains(&self, candidate: &Candidate) -> bool {
         self.candidates.contains(candidate)
     }
+
+    pub fn len(&self) -> usize {
+        self.candidates.len()
+    }
 }
 
 #[cfg(test)]
