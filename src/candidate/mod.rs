@@ -41,6 +41,10 @@ impl Candidate {
     pub fn number_of_bits(&self) -> usize {
         self.bitmap.cardinality() as usize
     }
+
+    pub fn maximum_bits() -> usize {
+        *CAPACITY as usize
+    }
 }
 
 impl Eq for Candidate { }

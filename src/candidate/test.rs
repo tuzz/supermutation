@@ -171,6 +171,15 @@ mod number_of_bits {
     }
 }
 
+mod maximum_bits {
+    use super::*;
+
+    #[test]
+    fn it_returns_the_capacity_of_the_bitmap() {
+        assert_eq!(Subject::maximum_bits(), *CAPACITY as usize);
+    }
+}
+
 mod ord {
     use super::*;
 
