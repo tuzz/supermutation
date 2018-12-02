@@ -9,6 +9,7 @@ extern crate lehmer;
 mod candidate;
 mod closed_set;
 mod heuristic;
+mod incremental;
 mod interface;
 mod open_set;
 mod search;

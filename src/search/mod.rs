@@ -66,6 +66,12 @@ impl Search {
     pub fn closed_set_len(&self) -> usize {
         self.closed_set.len()
     }
+
+    pub fn update_heuristic(&mut self, heuristic: &Heuristic) {
+        self.heuristic = heuristic.clone();
+
+        // TODO: re-cost everything in the open set
+    }
 }
 
 #[cfg(test)]
