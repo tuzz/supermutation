@@ -3,7 +3,7 @@ use std::cmp::Ordering::{self, Equal};
 use super::{N, FACTORIAL};
 use super::symmetry::SYMMETRY;
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Candidate {
     bitmap: Bitmap,
 }
@@ -13,7 +13,7 @@ lazy_static! {
 }
 
 impl Candidate {
-    fn seed() -> Self {
+    pub fn seed() -> Self {
         let mut bitmap = Bitmap::create_with_capacity(*CAPACITY);
 
         bitmap.add(0);
@@ -27,7 +27,7 @@ impl Candidate {
         Self { bitmap }
     }
 
-    fn expand(&self, symbol: usize) -> Self {
+    pub fn expand(&self, symbol: usize) -> Self {
         let mut bitmap = Bitmap::create_with_capacity(*CAPACITY);
         let mapping = SYMMETRY.mapping(symbol, &self.bitmap);
 

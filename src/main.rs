@@ -7,6 +7,8 @@ extern crate croaring;
 extern crate lehmer;
 
 mod candidate;
+mod closed_set;
+mod open_set;
 mod symmetry;
 mod util;
 
