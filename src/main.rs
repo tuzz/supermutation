@@ -20,11 +20,11 @@ use symmetry::Symmetry;
 use utility::Utility;
 
 lazy_static! {
-    static ref SYMBOLS: usize = *N - 1;
-    static ref FACTORIAL: usize = Utility::factorial(*N);
-    static ref CAPACITY: u32 = (*FACTORIAL + *N - 2) as u32;
-    static ref SYMMETRY: Symmetry = Symmetry::precompute(*N);
-    static ref N: usize = Interface::ask_for_symbols();
+    static ref SYMBOLS: usize = Interface::ask_for_symbols();
+    static ref EXPANSIONS: usize = *SYMBOLS - 1;
+    static ref FACTORIAL: usize = Utility::factorial(*SYMBOLS);
+    static ref CAPACITY: u32 = (*FACTORIAL + *SYMBOLS - 2) as u32;
+    static ref SYMMETRY: Symmetry = Symmetry::precompute(*SYMBOLS);
 }
 
 fn main() {

@@ -1,4 +1,4 @@
-use super::SYMBOLS;
+use super::EXPANSIONS;
 use crate::candidate::Candidate;
 use crate::closed_set::ClosedSet;
 use crate::open_set::OpenSet;
@@ -35,7 +35,7 @@ impl Search {
                 reached_goal = true;
             }
 
-            for symbol in 0..*SYMBOLS {
+            for symbol in 0..*EXPANSIONS {
                 let neighbor = candidate.expand(symbol);
 
                 if closed_set.contains(&neighbor) {
