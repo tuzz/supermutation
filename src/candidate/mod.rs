@@ -1,15 +1,11 @@
 use croaring::Bitmap;
 use std::cmp::Ordering::{self, Equal};
-use super::{N, FACTORIAL};
+use super::{FACTORIAL, CAPACITY};
 use super::symmetry::SYMMETRY;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Candidate {
     bitmap: Bitmap,
-}
-
-lazy_static! {
-    static ref CAPACITY: u32 = (*FACTORIAL + *N - 2) as u32;
 }
 
 impl Candidate {

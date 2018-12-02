@@ -2,7 +2,7 @@ use croaring::Bitmap;
 use lehmer::Lehmer;
 use std::iter::{once, repeat};
 use super::util::Util;
-use super::{N, FACTORIAL};
+use super::N;
 
 pub struct Symmetry {
     mappings: Vec<Vec<Vec<u32>>>,

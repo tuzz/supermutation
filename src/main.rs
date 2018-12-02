@@ -17,6 +17,7 @@ use util::Util;
 lazy_static! {
     static ref N: usize = 5;
     static ref FACTORIAL: usize = Util::factorial(*N);
+    static ref CAPACITY: u32 = (*FACTORIAL + *N - 2) as u32;
 }
 
 fn main() {
