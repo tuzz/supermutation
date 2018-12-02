@@ -68,9 +68,22 @@ impl Search {
     }
 
     pub fn update_heuristic(&mut self, heuristic: &Heuristic) {
-        self.heuristic = heuristic.clone();
+        if heuristic.changed_previous_values {
+            self.recalculate_open_set_costs(heuristic);
+        }
 
-        // TODO: re-cost everything in the open set
+        self.heuristic = heuristic.clone();
+    }
+
+    fn recalculate_open_set_costs(&mut self, heuristic: &Heuristic) {
+        let mut index = self.open_set.buckets_indexed_by_h_cost();
+
+        let old_costs = self.heuristic.costs.iter();
+        let new_costs = heuristic.costs.iter();
+
+        for (old_h, new_h) in old_costs.zip(new_costs) {
+            self.open_set.reindex_by_h_cost(&mut index, *old_h, *new_h);
+        }
     }
 }
 

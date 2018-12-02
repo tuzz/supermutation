@@ -105,3 +105,58 @@ mod closed_set_len {
         assert_eq!(subject.closed_set_len(), 1);
     }
 }
+
+mod update_heuristic {
+    use super::*;
+
+    fn subject(f_cost: usize) -> Subject {
+        let candidate = Candidate::seed();
+        let mut open_set = OpenSet::new();
+        let closed_set = ClosedSet::new();
+
+        open_set.add(candidate, f_cost, 0);
+
+        Subject::new(open_set, closed_set)
+    }
+
+    #[test]
+    fn it_sets_the_heuristic_for_the_search() {
+        let mut subject = subject(123);
+
+        let heuristic = Heuristic::new();
+        subject.update_heuristic(&heuristic);
+
+        assert_eq!(subject.heuristic, heuristic);
+    }
+
+    mod when_the_heuristic_changed_previous_values {
+        use super::*;
+
+        #[test]
+        fn it_recalculates_the_open_set_costs() {
+            let mut subject = subject(1);
+            let heuristic = Heuristic { changed_previous_values: true, costs: vec![2] };
+
+            subject.update_heuristic(&heuristic);
+
+            let f_cost = subject.open_set.minimum_f_cost();
+            assert_eq!(subject.open_set_len(), 1);
+            assert_eq!(f_cost, Some(2));
+        }
+    }
+
+    mod when_the_heuristic_has_not_changed_previous_values {
+        use super::*;
+
+        #[test]
+        fn it_does_not_recalculate_the_open_set_costs() {
+            let mut subject = subject(123);
+            let heuristic = Heuristic { changed_previous_values: false, costs: vec![1] };
+
+            subject.update_heuristic(&heuristic);
+
+            let f_cost = subject.open_set.minimum_f_cost();
+            assert_eq!(f_cost, Some(123));
+        }
+    }
+}
