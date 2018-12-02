@@ -75,3 +75,33 @@ mod shortest_path {
         assert_eq!(subject.closed_set.len(), 5);
     }
 }
+
+mod open_set_len {
+    use super::*;
+
+    #[test]
+    fn it_returns_the_number_of_candidates_in_the_open_set() {
+        let start = Candidate::seed();
+
+        let mut subject = subject(&start);
+        assert_eq!(subject.open_set_len(), 1);
+
+        subject.shortest_path(4);
+        assert_eq!(subject.open_set_len(), 4);
+    }
+}
+
+mod closed_set_len {
+    use super::*;
+
+    #[test]
+    fn it_returns_the_number_of_candidates_in_the_closed_set() {
+        let start = Candidate::seed();
+
+        let mut subject = subject(&start);
+        assert_eq!(subject.closed_set_len(), 0);
+
+        subject.shortest_path(4);
+        assert_eq!(subject.closed_set_len(), 1);
+    }
+}

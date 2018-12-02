@@ -58,6 +58,14 @@ impl Search {
 
         None
     }
+
+    pub fn open_set_len(&self) -> usize {
+        self.open_set.len()
+    }
+
+    pub fn closed_set_len(&self) -> usize {
+        self.closed_set.len()
+    }
 }
 
 #[cfg(test)]
