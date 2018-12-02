@@ -3,8 +3,6 @@
 
 #[macro_use]
 extern crate lazy_static;
-extern crate croaring;
-extern crate lehmer;
 
 mod candidate;
 mod closed_set;
@@ -16,7 +14,13 @@ mod search;
 mod symmetry;
 mod utility;
 
+use candidate::Candidate;
+use closed_set::ClosedSet;
+use heuristic::Heuristic;
+use incremental::Incremental;
 use interface::Interface;
+use open_set::OpenSet;
+use search::Search;
 use symmetry::Symmetry;
 use utility::Utility;
 
@@ -29,5 +33,17 @@ lazy_static! {
 }
 
 fn main() {
-    println!("Hello, world!");
+    let open_set = OpenSet::new();
+    let closed_set = ClosedSet::new();
+    let search = Search::new(open_set, closed_set);
+    let heuristic = Heuristic::new();
+    let candidate = Candidate::seed();
+    let mut incremental = Incremental::new(heuristic, search);
+
+    incremental.shortest_path(candidate, |distance, subgoal, search, _heuristic| {
+        println!("The shortest path to {} is {}", subgoal, distance);
+        println!("Open set: {}", search.open_set_len());
+        println!("Closed set: {}", search.closed_set_len());
+        println!();
+    });
 }
