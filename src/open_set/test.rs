@@ -138,3 +138,37 @@ mod len {
         assert_eq!(subject.len(), 1);
     }
 }
+
+mod minimum_f_cost {
+    use super::*;
+
+    #[test]
+    fn it_returns_the_minimum_f_cost_in_the_open_set() {
+        let candidate = Candidate::seed();
+
+        let mut subject = Subject::new();
+        assert_eq!(subject.minimum_f_cost(), None);
+
+        subject.add(candidate.clone(), 12, 34);
+        subject.add(candidate.clone(), 56, 78);
+
+        assert_eq!(subject.minimum_f_cost(), Some(12));
+    }
+}
+
+mod maximum_f_cost {
+    use super::*;
+
+    #[test]
+    fn it_returns_the_maximum_f_cost_in_the_open_set() {
+        let candidate = Candidate::seed();
+
+        let mut subject = Subject::new();
+        assert_eq!(subject.maximum_f_cost(), None);
+
+        subject.add(candidate.clone(), 12, 34);
+        subject.add(candidate.clone(), 56, 78);
+
+        assert_eq!(subject.maximum_f_cost(), Some(56));
+    }
+}

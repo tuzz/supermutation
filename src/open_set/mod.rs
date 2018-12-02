@@ -32,6 +32,14 @@ impl OpenSet {
     pub fn len(&self) -> usize {
         self.candidates.len()
     }
+
+    pub fn minimum_f_cost(&self) -> Option<usize> {
+        self.candidates.min_priority()
+    }
+
+    pub fn maximum_f_cost(&self) -> Option<usize> {
+        self.candidates.max_priority()
+    }
 }
 
 #[cfg(test)]
