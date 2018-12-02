@@ -38,6 +38,10 @@ impl Candidate {
 
         Self { bitmap }
     }
+
+    pub fn number_of_bits(&self) -> usize {
+        self.bitmap.cardinality() as usize
+    }
 }
 
 impl Eq for Candidate { }

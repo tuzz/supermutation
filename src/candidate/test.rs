@@ -152,6 +152,25 @@ mod expand {
     }
 }
 
+mod number_of_bits {
+    use super::*;
+
+    #[test]
+    fn it_returns_the_number_of_bits_that_are_set_in_the_bitmap() {
+        let subject = Subject::seed();
+        let first = subject.expand(0);
+        let second = subject.expand(1);
+        let third = subject.expand(2);
+        let fourth = subject.expand(3);
+
+        assert_eq!(subject.number_of_bits(), 4); // 1 perm, 3 counters
+        assert_eq!(first.number_of_bits(), 5);   // 2 perms, 3 counters
+        assert_eq!(second.number_of_bits(), 4);  // 1 perm, 3 counters
+        assert_eq!(third.number_of_bits(), 3);   // 1 perm, 2 counters
+        assert_eq!(fourth.number_of_bits(), 2);  // 1 perm, 1 counters
+    }
+}
+
 mod ord {
     use super::*;
 
