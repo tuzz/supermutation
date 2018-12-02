@@ -12,15 +12,15 @@ mod heuristic;
 mod open_set;
 mod search;
 mod symmetry;
-mod util;
+mod utility;
 
 use symmetry::Symmetry;
-use util::Util;
+use utility::Utility;
 
 lazy_static! {
     static ref N: usize = 5;
     static ref SYMBOLS: usize = *N - 1;
-    static ref FACTORIAL: usize = Util::factorial(*N);
+    static ref FACTORIAL: usize = Utility::factorial(*N);
     static ref CAPACITY: u32 = (*FACTORIAL + *N - 2) as u32;
     static ref SYMMETRY: Symmetry = Symmetry::precompute(*N);
 }

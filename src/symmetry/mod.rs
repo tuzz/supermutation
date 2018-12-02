@@ -1,7 +1,7 @@
 use croaring::Bitmap;
 use lehmer::Lehmer;
 use std::iter::{once, repeat};
-use super::util::Util;
+use super::utility::Utility;
 
 pub struct Symmetry {
     mappings: Vec<Vec<Vec<u32>>>,
@@ -52,7 +52,7 @@ impl Symmetry {
     }
 
     fn counter_mappings(n: usize) -> Vec<Vec<u32>> {
-        let ground_truth = Util::factorial(n) as u32;
+        let ground_truth = Utility::factorial(n) as u32;
 
         let template = (1..(n - 2))
             .map(|i| ground_truth + i as u32)
@@ -71,7 +71,7 @@ impl Symmetry {
     fn permutation_mappings<F, T>(n: usize, f: F) -> Vec<Vec<Vec<T>>>
         where F: Fn(usize, Vec<u8>) -> Vec<T>
     {
-        let factorial = Util::factorial(n);
+        let factorial = Utility::factorial(n);
 
         Self::transpositions(n, |symbol, transposition| {
             let inverse = (0..n as u8).map(|i| {
@@ -96,7 +96,7 @@ impl Symmetry {
         where F: Fn(usize, Vec<u8>) -> Vec<T>
     {
         (0..(n - 1)).map(|symbol| {
-            let factorial = Util::factorial(symbol);
+            let factorial = Utility::factorial(symbol);
 
             (0..factorial).map(|i| {
                 let lehmer = Lehmer::from_decimal(i, symbol);

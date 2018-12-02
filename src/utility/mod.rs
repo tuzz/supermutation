@@ -1,8 +1,8 @@
-pub struct Util {
+pub struct Utility {
 
 }
 
-impl Util {
+impl Utility {
     pub fn factorial(n: usize) -> usize {
         match n {
             0 => 1,

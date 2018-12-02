@@ -1,6 +1,6 @@
 use super::*;
 
-type Subject = Util;
+type Subject = Utility;
 
 mod factorial {
     use super::*;
