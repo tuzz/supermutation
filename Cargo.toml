@@ -9,3 +9,6 @@ bucket_queue = "2.0.0"
 croaring = "0.3.7"
 lazy_static = "1.2.0"
 lehmer = "3.0.0"
+
+[features]
+four_symbols = []
