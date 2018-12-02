@@ -10,11 +10,8 @@ impl OpenSet {
         Self { candidates: BucketQueue::new() }
     }
 
-    pub fn seed(candidate: Candidate) -> Self {
-        let mut open_set = Self::new();
-        open_set.add(candidate, 1, 0);
-
-        open_set
+    pub fn seed(&mut self, candidate: Candidate) {
+        self.add(candidate, 1, 0);
     }
 
     pub fn add(&mut self, candidate: Candidate, f_cost: usize, g_cost: usize) {

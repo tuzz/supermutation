@@ -4,10 +4,28 @@ use crate::candidate::Candidate;
 type Subject = Search;
 
 fn subject(candidate: &Candidate) -> Subject {
-    let open_set = OpenSet::seed(candidate.clone());
+    let mut open_set = OpenSet::new();
     let closed_set = ClosedSet::new();
 
+    open_set.seed(candidate.clone());
+
     Subject::new(open_set, closed_set)
+}
+
+mod seed {
+    use super::*;
+
+    #[test]
+    fn it_adds_the_candidate_to_the_open_set() {
+        let open_set = OpenSet::new();
+        let closed_set = ClosedSet::new();
+
+        let mut subject = Subject::new(open_set, closed_set);
+        let candidate = Candidate::seed();
+
+        subject.seed(candidate);
+        assert_eq!(subject.open_set.len(), 1);
+    }
 }
 
 mod shortest_path {

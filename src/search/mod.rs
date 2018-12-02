@@ -1,4 +1,5 @@
 use super::SYMBOLS;
+use crate::candidate::Candidate;
 use crate::closed_set::ClosedSet;
 use crate::open_set::OpenSet;
 use crate::heuristic::Heuristic;
@@ -12,6 +13,10 @@ pub struct Search {
 impl Search {
     pub fn new(open_set: OpenSet, closed_set: ClosedSet) -> Self {
         Self { open_set, closed_set, heuristic: Heuristic::new() }
+    }
+
+    pub fn seed(&mut self, candidate: Candidate) {
+        self.open_set.seed(candidate);
     }
 
     pub fn shortest_path(&mut self, goal: usize) -> Option<usize> {
