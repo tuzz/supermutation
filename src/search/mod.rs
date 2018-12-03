@@ -12,7 +12,7 @@ pub struct Search {
 
 impl Search {
     pub fn new(open_set: OpenSet, closed_set: ClosedSet) -> Self {
-        Self { open_set, closed_set, heuristic: Heuristic::new() }
+        Self { open_set, closed_set, heuristic: Heuristic::seed() }
     }
 
     pub fn seed(&mut self, candidate: Candidate) {
@@ -70,8 +70,8 @@ impl Search {
     pub fn update_heuristic(&mut self, heuristic: &Heuristic) {
         let mut index = self.open_set.buckets_indexed_by_h_cost();
 
-        let old_costs = self.heuristic.lower_bounds.iter();
-        let new_costs = heuristic.lower_bounds.iter();
+        let old_costs = self.heuristic.lower_bounds().iter();
+        let new_costs = heuristic.lower_bounds().iter();
 
         for (old_h, new_h) in old_costs.zip(new_costs) {
             self.open_set.reindex_by_h_cost(&mut index, *old_h, *new_h);

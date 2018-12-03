@@ -10,12 +10,17 @@ fn subject(candidate: &Candidate) -> Subject {
     let closed_set = ClosedSet::new();
     let mut subject = Subject::new(open_set, closed_set);
 
-    // Use a simplified heuristic, otherwise these tests become too coupled.
-    let heuristic = Heuristic { lower_bounds: vec![5, 4, 3, 2, 1, 0, 0, 0, 0, 0] };
-
-    subject.heuristic = heuristic;
+    subject.heuristic = simplified_heuristic();
     subject.seed(candidate.clone());
     subject
+}
+
+fn simplified_heuristic() -> Heuristic {
+    Heuristic::new(4, vec![0], vec![5, 4, 3, 2, 1, 0, 0, 0, 0, 0])
+}
+
+fn updated_heuristic() -> Heuristic {
+    Heuristic::new(4, vec![0], vec![5, 4, 3, 2, 999, 0, 0, 0, 0, 0])
 }
 
 mod seed {
@@ -40,7 +45,7 @@ mod shortest_path {
     #[test]
     fn it_finds_the_length_of_the_shortest_path_to_the_goal_number_of_bits() {
         let start = Candidate::seed();
-        let mut subject = &mut subject(&start);
+        let subject = &mut subject(&start);
 
         let mut goal = start.number_of_bits() + 1;         // shortest path:
         assert_eq!(subject.shortest_path(goal), Some(1));  // 012340
@@ -61,7 +66,7 @@ mod shortest_path {
     #[test]
     fn it_reuses_the_open_and_closed_sets_in_between_searches() {
         let start = Candidate::seed();
-        let mut subject = &mut subject(&start);
+        let subject = &mut subject(&start);
 
         let mut goal = start.number_of_bits() + 1;
         subject.shortest_path(goal);
@@ -81,7 +86,8 @@ mod shortest_path {
         let start = Candidate::seed();
         let subject = &mut subject(&start);
 
-        let mut goal = start.number_of_bits() + 1;
+
+        let goal = start.number_of_bits() + 1;
         subject.shortest_path(goal);
                                                     // b  f  g  h
         assert_eq!(next_bits_and_costs(subject), Some((5, 1, 1, 0)));
@@ -135,18 +141,14 @@ mod closed_set_len {
 mod update_heuristic {
     use super::*;
 
-    fn new_heuristic() -> Heuristic {
-        Heuristic { lower_bounds: vec![0, 0, 0, 0, 999, 0, 0, 0, 0, 0] }
-    }                                           //  ^ This was 1 previously.
-
     #[test]
     fn it_sets_the_new_heuristic_for_the_search() {
         let start = Candidate::seed();
         let mut subject = subject(&start);
 
-        subject.update_heuristic(&new_heuristic());
+        subject.update_heuristic(&updated_heuristic());
 
-        assert_eq!(subject.heuristic, new_heuristic());
+        assert_eq!(subject.heuristic, updated_heuristic());
     }
 
     #[test]
@@ -154,7 +156,7 @@ mod update_heuristic {
         let start = Candidate::seed();
         let mut subject = subject(&start);
 
-        subject.update_heuristic(&new_heuristic());
+        subject.update_heuristic(&updated_heuristic());
         let f_cost = subject.open_set.minimum_f_cost();
 
         assert_eq!(subject.open_set_len(), 1);
@@ -169,7 +171,7 @@ mod update_heuristic {
         let (_, g_cost_before) = before.open_set.next().unwrap();
 
         let mut after = subject(&start);
-        after.update_heuristic(&new_heuristic());
+        after.update_heuristic(&updated_heuristic());
         let (_, g_cost_after) = after.open_set.next().unwrap();
 
         assert_eq!(g_cost_before, g_cost_after);

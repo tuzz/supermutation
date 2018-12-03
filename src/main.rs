@@ -36,7 +36,7 @@ fn main() {
     let open_set = OpenSet::new();
     let closed_set = ClosedSet::new();
     let search = Search::new(open_set, closed_set);
-    let heuristic = Heuristic::new();
+    let heuristic = Heuristic::seed();
     let candidate = Candidate::seed();
     let mut incremental = Incremental::new(heuristic, search);
 
