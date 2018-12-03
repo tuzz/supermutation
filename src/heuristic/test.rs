@@ -45,3 +45,160 @@ mod cost {
         assert_eq!(subject.cost(2), 3);
     }
 }
+
+mod first_goal {
+    use super::*;
+
+    #[test]
+    fn it_returns_the_number_of_bits_in_the_first_subgoal() {
+        let mut subject = Subject::seed();
+        assert_eq!(subject.first_goal(), 5);
+
+        subject.improve_based_on(1);
+        assert_eq!(subject.first_goal(), 5);
+
+        subject.improve_based_on(2);
+        assert_eq!(subject.first_goal(), 5);
+    }
+}
+
+mod next_goal {
+    use super::*;
+
+    #[test]
+    fn it_returns_the_number_of_bits_in_the_next_subgoal() {
+        let mut subject = Subject::seed();
+        assert_eq!(subject.next_goal(), 5);
+
+        subject.improve_based_on(1);
+        assert_eq!(subject.next_goal(), 6);
+
+        subject.improve_based_on(2);
+        assert_eq!(subject.next_goal(), 7);
+    }
+}
+
+mod improve_based_on {
+    use super::*;
+
+    #[test]
+    fn it_adds_the_new_distances_to_its_shortest_path_distances() {
+        let mut subject = Subject::seed();
+
+        subject.improve_based_on(1);
+        assert_eq!(subject.distances, &[0, 1]);
+
+        subject.improve_based_on(2);
+        assert_eq!(subject.distances, &[0, 1, 2]);
+
+        subject.improve_based_on(4);
+        assert_eq!(subject.distances, &[0, 1, 2, 4]);
+    }
+
+    #[test]
+    fn it_adds_a_new_lower_bound_of_zero_for_the_next_subgoal() {
+        let mut subject = Subject::seed();
+        assert_eq!(subject.lower_bounds.len(), 6);
+
+        subject.improve_based_on(1);
+        assert_eq!(subject.lower_bounds.len(), 7);
+        assert_eq!(subject.lower_bounds.last().unwrap(), &0);
+    }
+
+    #[test]
+    fn it_increases_the_previous_lower_bounds() {
+        let mut subject = Subject::seed();
+        assert_eq!(subject.lower_bounds, &[5, 4, 3, 2, 1, 0]);
+
+        subject.improve_based_on(1);
+        assert_eq!(subject.lower_bounds, &[6, 5, 4, 3, 2, 1, 0]);
+
+        subject.improve_based_on(2);
+        assert_eq!(subject.lower_bounds, &[7, 6, 5, 4, 3, 2, 1, 0]);
+    }
+
+    #[test]
+    fn it_updates_the_lower_bounds_taking_into_account_previous_gaps() {
+        let mut subject = Subject::seed();
+
+        subject.improve_based_on(1);
+        assert_eq!(subject.lower_bounds, &[6, 5, 4, 3, 2, 1, 0]);
+
+        subject.improve_based_on(3);
+        assert_eq!(subject.lower_bounds, &[8, 7, 6, 5, 4, 3, 1, 0]);
+
+        //   Graph of number of bits vs. distance:
+        //
+        //          |     o           <-- lower bound for 6 bits
+        // distance |    x (5, 3)     <-- needs to travel at least 1 distance
+        //          |
+        //          |   x (4, 1)      <--   "   "    "    "    "   3 distance
+        //          |__x___________   <--   "   "    "    "    "   4 distance
+        //             (3, 0)
+        //
+        //           number of bits
+    }
+
+    #[test]
+    fn it_sets_higher_lower_bounds_when_there_was_a_previous_gap_in_distance() {
+        let mut subject = Subject::seed();
+
+        subject.improve_based_on(1);
+        assert_eq!(subject.lower_bounds, &[6, 5, 4, 3, 2, 1, 0]);
+
+        subject.improve_based_on(3);
+        assert_eq!(subject.lower_bounds, &[8, 7, 6, 5, 4, 3, 1, 0]);
+
+        subject.improve_based_on(4);
+        assert_eq!(subject.lower_bounds, &[10, 9, 8, 7, 6, 5, 3, 2, 0]);
+
+        //   Graph of number of bits vs. distance:
+        //
+        //          |      o          <-- lower bound for 7 bits is +2 because of 4 to 5 bits
+        //          |
+        //          |     x (6, 4)    <-- needs to travel at least 2 distance
+        // distance |    x (5, 3)     <--   "   "    "    "    "   3 distance
+        //          |
+        //          |   x (4, 1)      <--   "   "    "    "    "   5 distance
+        //          |__x___________   <--   "   "    "    "    "   6 distance
+        //             (3, 0)
+        //
+        //           number of bits
+    }
+
+    #[test]
+    fn it_sets_the_lower_bound_from_the_biggest_previous_gap_it_finds() {
+        let mut subject = Subject::seed();
+
+        subject.improve_based_on(1);
+        subject.improve_based_on(3);  // gap of 2
+        subject.improve_based_on(4);
+        subject.improve_based_on(7);  // gap of 3
+        subject.improve_based_on(8);
+        subject.improve_based_on(10); // gap of 2
+        subject.improve_based_on(11);
+
+        assert_eq!(subject.lower_bounds, &[18, 17, 16, 15, 14, 13, 11, 10, 7, 6, 4, 3, 0]);
+
+        //   Graph of number of bits vs. distance:
+        //
+        //          |          o            <-- lower bound for 11 bits is +3
+        //          |                           because of 6 to 7 bits
+        //          |
+        //          |         x (10, 11)    <-- needs to travel at least 3 distance
+        //          |        x (9, 10)      <--   "   "    "    "    "   4 distance
+        // distance |
+        //          |       x (8, 8)        <--   "   "    "    "    "   6 distance
+        //          |      x (7, 7)         <--   "   "    "    "    "   7 distance
+        //          |
+        //          |
+        //          |     x (6, 4)          <--   "   "    "    "    "   10 distance
+        //          |    x (5, 3)           <--   "   "    "    "    "   11 distance
+        //          |
+        //          |   x (4, 1)            <--   "   "    "    "    "   13 distance
+        //          |__x___________         <--   "   "    "    "    "   14 distance
+        //             (3, 0)
+        //
+        //           number of bits
+    }
+}
