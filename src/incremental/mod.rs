@@ -18,7 +18,7 @@ impl Incremental {
         let search = &mut self.search;
         let heuristic = &mut self.heuristic;
 
-        let start = candidate.number_of_bits();
+        let start = candidate.number_of_bits() + 1;
         let finish = Candidate::maximum_bits();
 
         search.seed(candidate);
@@ -26,7 +26,7 @@ impl Incremental {
 
         for subgoal in start..=finish {
             distance = search.shortest_path(subgoal);
-            heuristic.improve_based_on(distance?, subgoal);
+            heuristic.improve_based_on(distance?);
 
             milestone(distance?, subgoal, &search, &heuristic);
             search.update_heuristic(heuristic); // TODO: only if changed

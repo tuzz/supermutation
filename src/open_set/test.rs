@@ -14,45 +14,6 @@ mod new {
     }
 }
 
-mod seed {
-    use super::*;
-
-    #[test]
-    fn adds_the_candidate_to_the_open_set() {
-        let mut subject = Subject::new();
-        let candidate = Candidate::seed();
-
-        subject.seed(candidate);
-
-        assert_eq!(subject.candidates.len(), 1);
-    }
-
-    #[test]
-    fn it_sets_the_g_cost_to_zero_because_we_havent_travelled_anywhere_yet() {
-        let mut subject = Subject::new();
-        let candidate = Candidate::seed();
-
-        subject.seed(candidate);
-
-        let bucket = subject.candidates.min_bucket();
-        let g_cost = bucket.min_priority().unwrap();
-
-        assert_eq!(g_cost, 0);
-    }
-
-    #[test]
-    fn it_sets_the_f_cost_to_one_because_we_have_to_travel_at_least_once() {
-        let mut subject = Subject::new();
-        let candidate = Candidate::seed();
-
-        subject.seed(candidate);
-
-        let f_cost = subject.candidates.min_priority().unwrap();
-
-        assert_eq!(f_cost, 1);
-    }
-}
-
 mod add {
     use super::*;
 

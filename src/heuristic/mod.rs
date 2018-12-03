@@ -1,19 +1,18 @@
 #[derive(Clone, Debug, PartialEq)]
 pub struct Heuristic {
-    pub costs: Vec<usize>,
-    pub changed_previous_values: bool,
+    pub lower_bounds: Vec<usize>,
 }
 
 impl Heuristic {
     pub fn new() -> Self {
-        Self { costs: vec![1], changed_previous_values: true }
+        Self { lower_bounds: vec![5, 4, 3, 2, 1, 0] }
     }
 
-    pub fn cost(&self, _number_of_bits: usize) -> usize {
-        1
+    pub fn cost(&self, number_of_bits: usize) -> usize {
+        self.lower_bounds[number_of_bits]
     }
 
-    pub fn improve_based_on(&mut self, _: usize, _: usize) {
+    pub fn improve_based_on(&mut self, _: usize) {
         // TODO
     }
 }

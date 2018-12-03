@@ -16,7 +16,7 @@ impl Search {
     }
 
     pub fn seed(&mut self, candidate: Candidate) {
-        self.open_set.seed(candidate);
+        self.open_set.add(candidate, 1, 0);
     }
 
     pub fn shortest_path(&mut self, goal: usize) -> Option<usize> {
@@ -29,17 +29,17 @@ impl Search {
                 continue;
             }
 
-            let bits = candidate.number_of_bits();
-
-            if bits == goal {
-                reached_goal = true;
-            }
-
             for symbol in 0..*EXPANSIONS {
                 let neighbor = candidate.expand(symbol);
 
                 if closed_set.contains(&neighbor) {
                     continue;
+                }
+
+                let bits = neighbor.number_of_bits();
+
+                if bits == goal {
+                    reached_goal = true;
                 }
 
                 let g_cost = search_depth + 1;
@@ -52,7 +52,7 @@ impl Search {
             closed_set.add(candidate);
 
             if reached_goal {
-                return Some(search_depth);
+                return Some(search_depth + 1);
             }
         }
 
@@ -68,22 +68,16 @@ impl Search {
     }
 
     pub fn update_heuristic(&mut self, heuristic: &Heuristic) {
-        if heuristic.changed_previous_values {
-            self.recalculate_open_set_costs(heuristic);
-        }
-
-        self.heuristic = heuristic.clone();
-    }
-
-    fn recalculate_open_set_costs(&mut self, heuristic: &Heuristic) {
         let mut index = self.open_set.buckets_indexed_by_h_cost();
 
-        let old_costs = self.heuristic.costs.iter();
-        let new_costs = heuristic.costs.iter();
+        let old_costs = self.heuristic.lower_bounds.iter();
+        let new_costs = heuristic.lower_bounds.iter();
 
         for (old_h, new_h) in old_costs.zip(new_costs) {
             self.open_set.reindex_by_h_cost(&mut index, *old_h, *new_h);
         }
+
+        self.heuristic = heuristic.clone();
     }
 }
 
