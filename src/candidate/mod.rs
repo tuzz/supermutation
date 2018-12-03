@@ -1,5 +1,5 @@
 use croaring::Bitmap;
-use std::cmp::Ordering::{self, Equal};
+use std::cmp::Ordering::{self, Equal, Less, Greater};
 use super::{FACTORIAL, CAPACITY, SYMMETRY};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -51,17 +51,28 @@ impl Eq for Candidate { }
 
 impl Ord for Candidate {
     fn cmp(&self, other: &Self) -> Ordering {
-        let left = self.bitmap.iter();
-        let right = other.bitmap.iter();
+        let left = &self.bitmap;
+        let right = &other.bitmap;
 
-        let option = left.zip(right).find_map(|(a, b)| {
+        let left_len = left.cardinality();
+        let right_len = right.cardinality();
+
+        if left_len < right_len {
+            return Less;
+        }
+
+        if left_len > right_len {
+            return Greater;
+        }
+
+        for (a, b) in left.iter().zip(right.iter()) {
             match a.cmp(&b) {
-                Equal => None,
-                o @ _ => Some(o),
-            }
-        });
+                Equal => continue,
+                o @ _ => return o,
+            };
+        }
 
-        option.unwrap_or(Equal)
+        Equal
     }
 }
 

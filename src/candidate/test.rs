@@ -195,18 +195,29 @@ mod ord {
         let d = subject.expand(0);
 
         // Order is total and antisymmetric:
-        assert!(a < b);
+        assert!(a > b);
         assert!(!(a == b));
-        assert!(!(a > b));
+        assert!(!(a < b));
 
         // Order is transistive:
-        assert!(a < c);
-        assert!(c < b);
-        assert!(a < b);
+        assert!(a > b);
+        assert!(b > c);
+        assert!(a > c);
 
-        // Order is consistent for the same bitmap:
+        // Order is equal for the same bitmap:
         assert!(a == d);
         assert!(!(a < d));
         assert!(!(a > d));
+    }
+
+    #[test]
+    fn it_orders_candidates_with_fewer_bits_first() {
+        let shorter = Bitmap::of(&[0, 1, 2]);
+        let longer = Bitmap::of(&[0, 1, 2, 3]);
+
+        let a = Candidate { bitmap: shorter };
+        let b = Candidate { bitmap: longer };
+
+        assert!(a < b);
     }
 }
