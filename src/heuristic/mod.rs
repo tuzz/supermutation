@@ -71,7 +71,8 @@ impl Heuristic {
 
     fn shortest_distance(&self, number_of_bits: usize) -> isize {
         if number_of_bits < self.starting_bits {
-            return number_of_bits as isize - self.starting_bits as isize;
+            let bits_removed = self.starting_bits - number_of_bits;
+            return -(self.shortest_distance_to_add(bits_removed) as isize);
         }
 
         let bits_added = number_of_bits - self.starting_bits;
@@ -79,6 +80,11 @@ impl Heuristic {
     }
 
     fn shortest_distance_to_add(&self, bits_to_add: usize) -> usize {
+        if bits_to_add >= self.distances.len() {
+            let bits_over = bits_to_add - self.distances.len() + 1;
+            return self.distances.last().unwrap() + bits_over;
+        }
+
         self.distances[bits_to_add]
     }
 }

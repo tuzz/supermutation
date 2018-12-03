@@ -108,13 +108,13 @@ mod improve_based_on {
     #[test]
     fn it_increases_the_previous_lower_bounds() {
         let mut subject = Subject::seed();
-        assert_eq!(subject.lower_bounds, &[5, 4, 3, 2, 1, 0]);
+        assert_eq!(&subject.lower_bounds[4..], &[1, 0]);
 
         subject.improve_based_on(1);
-        assert_eq!(subject.lower_bounds, &[6, 5, 4, 3, 2, 1, 0]);
+        assert_eq!(&subject.lower_bounds[4..], &[2, 1, 0]);
 
         subject.improve_based_on(2);
-        assert_eq!(subject.lower_bounds, &[7, 6, 5, 4, 3, 2, 1, 0]);
+        assert_eq!(&subject.lower_bounds[4..], &[3, 2, 1, 0]);
     }
 
     #[test]
@@ -122,10 +122,10 @@ mod improve_based_on {
         let mut subject = Subject::seed();
 
         subject.improve_based_on(1);
-        assert_eq!(subject.lower_bounds, &[6, 5, 4, 3, 2, 1, 0]);
+        assert_eq!(&subject.lower_bounds[4..], &[2, 1, 0]);
 
         subject.improve_based_on(3);
-        assert_eq!(subject.lower_bounds, &[8, 7, 6, 5, 4, 3, 1, 0]);
+        assert_eq!(&subject.lower_bounds[4..], &[4, 3, 1, 0]);
 
         //   Graph of number of bits vs. distance:
         //
@@ -144,13 +144,13 @@ mod improve_based_on {
         let mut subject = Subject::seed();
 
         subject.improve_based_on(1);
-        assert_eq!(subject.lower_bounds, &[6, 5, 4, 3, 2, 1, 0]);
+        assert_eq!(&subject.lower_bounds[4..], &[2, 1, 0]);
 
         subject.improve_based_on(3);
-        assert_eq!(subject.lower_bounds, &[8, 7, 6, 5, 4, 3, 1, 0]);
+        assert_eq!(&subject.lower_bounds[4..], &[4, 3, 1, 0]);
 
         subject.improve_based_on(4);
-        assert_eq!(subject.lower_bounds, &[10, 9, 8, 7, 6, 5, 3, 2, 0]);
+        assert_eq!(&subject.lower_bounds[4..], &[6, 5, 3, 2, 0]);
 
         //   Graph of number of bits vs. distance:
         //
@@ -178,7 +178,7 @@ mod improve_based_on {
         subject.improve_based_on(10); // gap of 2
         subject.improve_based_on(11);
 
-        assert_eq!(subject.lower_bounds, &[18, 17, 16, 15, 14, 13, 11, 10, 7, 6, 4, 3, 0]);
+        assert_eq!(&subject.lower_bounds[4..], &[14, 13, 11, 10, 7, 6, 4, 3, 0]);
 
         //   Graph of number of bits vs. distance:
         //
@@ -200,5 +200,21 @@ mod improve_based_on {
         //             (3, 0)
         //
         //           number of bits
+    }
+
+    #[test]
+    fn it_increases_the_lower_bounds_for_candidates_with_fewer_than_the_starting_bits() {
+        let mut subject = Subject::seed();
+
+        subject.improve_based_on(1);
+        subject.improve_based_on(3);  // gap of 2
+        subject.improve_based_on(4);
+        subject.improve_based_on(7);  // gap of 3
+        subject.improve_based_on(8);
+        subject.improve_based_on(10); // gap of 2
+        subject.improve_based_on(11);
+
+        // I think this is the right thing to do, but I'm not 100% sure.
+        assert_eq!(&subject.lower_bounds, &[21, 18, 17, 15, 14, 13, 11, 10, 7, 6, 4, 3, 0]);
     }
 }
