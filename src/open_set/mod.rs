@@ -66,17 +66,16 @@ impl OpenSet {
     }
 
     pub fn reindex_by_h_cost(&mut self, index: &mut IndexedBuckets, old_h: usize, new_h: usize) -> Option<()> {
-        for (bucket, g_cost) in index.remove(&old_h)? {
+        for (mut bucket, g_cost) in index.remove(&old_h)? {
             let f_cost = g_cost + new_h;
             let mut f_bucket = self.candidates.bucket(f_cost);
 
-            let empty = f_bucket.replace(g_cost, Some(bucket));
-
-            if empty.is_none() || empty.unwrap().is_empty() {
-                continue;
+            if !f_bucket.bucket(g_cost).is_empty() {
+                let mut existing = f_bucket.replace(g_cost, None).unwrap();
+                bucket.append(&mut existing);
             }
 
-            panic!("Tried to overwrite a non-empty bucket in the OpenSet.");
+            f_bucket.replace(g_cost, Some(bucket));
         }
 
         None

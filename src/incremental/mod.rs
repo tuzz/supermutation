@@ -26,7 +26,7 @@ impl Incremental {
 
         for subgoal in start..=finish {
             distance = search.shortest_path(subgoal);
-            heuristic.improve_based_on(distance?, subgoal);
+            heuristic.improve_based_on(distance?);
 
             milestone(distance?, subgoal, &search, &heuristic);
             search.update_heuristic(heuristic); // TODO: only if changed

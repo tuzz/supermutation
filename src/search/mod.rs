@@ -29,9 +29,7 @@ impl Search {
                 continue;
             }
 
-            let bits = candidate.number_of_bits();
-
-            if bits == goal {
+            if candidate.number_of_bits() == goal {
                 reached_goal = true;
             }
 
@@ -42,9 +40,13 @@ impl Search {
                     continue;
                 }
 
+                let bits = neighbor.number_of_bits();
+
                 let g_cost = search_depth + 1;
                 let h_cost = self.heuristic.cost(bits);
                 let f_cost = g_cost + h_cost;
+//                println!("neigbor: {:?}", neighbor);
+//                println!("f: {}, g: {}, h: {}", f_cost, g_cost, h_cost);
 
                 open_set.add(neighbor, f_cost, g_cost);
             }
@@ -68,7 +70,7 @@ impl Search {
     }
 
     pub fn update_heuristic(&mut self, heuristic: &Heuristic) {
-        if heuristic.changed_previous_values {
+        if heuristic.invalidated {
             self.recalculate_open_set_costs(heuristic);
         }
 
@@ -78,8 +80,8 @@ impl Search {
     fn recalculate_open_set_costs(&mut self, heuristic: &Heuristic) {
         let mut index = self.open_set.buckets_indexed_by_h_cost();
 
-        let old_costs = self.heuristic.costs.iter();
-        let new_costs = heuristic.costs.iter();
+        let old_costs = self.heuristic.lower_bounds.iter();
+        let new_costs = heuristic.lower_bounds.iter();
 
         for (old_h, new_h) in old_costs.zip(new_costs) {
             self.open_set.reindex_by_h_cost(&mut index, *old_h, *new_h);
