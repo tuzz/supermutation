@@ -1,21 +1,24 @@
 use crate::candidate::Candidate;
-use std::collections::BTreeSet;
+use std::collections::BTreeMap;
 
 pub struct ClosedSet {
-    candidates: BTreeSet<Candidate>,
+    candidates: BTreeMap<Candidate, usize>,
 }
 
 impl ClosedSet {
     pub fn new() -> Self {
-        Self { candidates: BTreeSet::new() }
+        Self { candidates: BTreeMap::new() }
     }
 
-    pub fn add(&mut self, candidate: Candidate) {
-        self.candidates.insert(candidate);
+    pub fn add(&mut self, candidate: Candidate, g_cost: usize) {
+        self.candidates.insert(candidate, g_cost);
     }
 
-    pub fn contains(&self, candidate: &Candidate) -> bool {
-        self.candidates.contains(candidate)
+    pub fn contains(&self, candidate: &Candidate, g_cost: usize) -> bool {
+        match self.candidates.get(candidate) {
+            Some(previous) if g_cost >= *previous => true,
+            _ => false,
+        }
     }
 
     pub fn len(&self) -> usize {

@@ -8,11 +8,11 @@ mod add {
     use super::*;
 
     #[test]
-    fn it_adds_a_candidate_to_the_closed_set() {
+    fn it_adds_a_candidate_to_the_closed_set_with_its_g_cost() {
         let mut subject = Subject::new();
         let candidate = Candidate::seed();
 
-        subject.add(candidate.clone());
+        subject.add(candidate.clone(), 0);
 
         assert_eq!(subject.candidates.len(), 1);
     }
@@ -29,10 +29,22 @@ mod contains {
         let first = candidate.expand(0);
         let second = candidate.expand(1);
 
-        subject.add(first.clone());
+        subject.add(first.clone(), 0);
 
-        assert_eq!(subject.contains(&first), true);
-        assert_eq!(subject.contains(&second), false);
+        assert_eq!(subject.contains(&first, 0), true);
+        assert_eq!(subject.contains(&second, 0), false);
+    }
+
+    #[test]
+    fn it_returns_false_if_it_contains_the_candidate_with_a_higher_g_cost() {
+        let mut subject = Subject::new();
+        let candidate = Candidate::seed();
+
+        subject.add(candidate.clone(), 5);
+
+        assert_eq!(subject.contains(&candidate, 4), false);
+        assert_eq!(subject.contains(&candidate, 5), true);
+        assert_eq!(subject.contains(&candidate, 6), true);
     }
 }
 
@@ -46,7 +58,7 @@ mod len {
         let mut subject = Subject::new();
         assert_eq!(subject.len(), 0);
 
-        subject.add(candidate);
+        subject.add(candidate, 0);
         assert_eq!(subject.len(), 1);
     }
 }

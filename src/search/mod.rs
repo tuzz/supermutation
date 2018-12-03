@@ -25,14 +25,14 @@ impl Search {
         let mut reached_goal = false;
 
         while let Some((candidate, search_depth)) = open_set.next() {
-            if closed_set.contains(&candidate) {
+            if closed_set.contains(&candidate, search_depth) {
                 continue;
             }
 
             for symbol in 0..*EXPANSIONS {
                 let neighbor = candidate.expand(symbol);
 
-                if closed_set.contains(&neighbor) {
+                if closed_set.contains(&neighbor, search_depth + 1) {
                     continue;
                 }
 
@@ -49,7 +49,7 @@ impl Search {
                 open_set.add(neighbor, f_cost, g_cost);
             }
 
-            closed_set.add(candidate);
+            closed_set.add(candidate, search_depth);
 
             if reached_goal {
                 return Some(search_depth + 1);
