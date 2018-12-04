@@ -10,7 +10,7 @@ fn subject() -> Subject {
     let open_set = OpenSet::new();
     let closed_set = ClosedSet::new();
     let search = Search::new(open_set, closed_set);
-    let heuristic = Heuristic::new();
+    let heuristic = Heuristic::seed();
 
     Subject::new(heuristic, search)
 }
@@ -58,5 +58,41 @@ mod shortest_path {
            (28, 25),
            (30, 26),  // The shortest path to a superpermutation has length 30.
         ]);
+    }
+
+    #[test]
+    fn it_sets_all_bits_in_the_candidates_bitmap_when_a_superpermutation_is_reached() {
+        let candidate = Candidate::seed();   // 0123
+        let candidate = candidate.expand(0); // 01230
+        let candidate = candidate.expand(0); // 012301
+        let candidate = candidate.expand(0); // 0123012
+        let candidate = candidate.expand(1); // 01230120
+        let candidate = candidate.expand(0); // 012301203
+        let candidate = candidate.expand(0); // 0123012031
+        let candidate = candidate.expand(0); // 01230120312
+        let candidate = candidate.expand(0); // 012301203120
+        let candidate = candidate.expand(1); // 0123012031201
+        let candidate = candidate.expand(0); // 01230120312013
+        let candidate = candidate.expand(0); // 012301203120132
+        let candidate = candidate.expand(0); // 0123012031201320
+        let candidate = candidate.expand(0); // 01230120312013201
+        let candidate = candidate.expand(2); // 012301203120132010
+        let candidate = candidate.expand(1); // 0123012031201320102
+        let candidate = candidate.expand(0); // 01230120312013201023
+        let candidate = candidate.expand(0); // 012301203120132010231
+        let candidate = candidate.expand(0); // 0123012031201320102310
+        let candidate = candidate.expand(0); // 01230120312013201023102
+        let candidate = candidate.expand(1); // 012301203120132010231021
+        let candidate = candidate.expand(0); // 0123012031201320102310213
+        let candidate = candidate.expand(0); // 01230120312013201023102130
+        let candidate = candidate.expand(0); // 012301203120132010231021302
+        let candidate = candidate.expand(0); // 0123012031201320102310213021
+        let candidate = candidate.expand(1); // 01230120312013201023102130210
+        let candidate = candidate.expand(0); // 012301203120132010231021302103
+        let candidate = candidate.expand(0); // 0123012031201320102310213021032
+        let candidate = candidate.expand(0); // 01230120312013201023102130210321
+        let candidate = candidate.expand(0); // 012301203120132010231021302103210
+
+        assert_eq!(candidate.number_of_bits(), 26);
     }
 }

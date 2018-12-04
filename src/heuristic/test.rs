@@ -1,3 +1,5 @@
+#![cfg(not(feature = "four_symbols"))]
+
 use super::*;
 
 type Subject = Heuristic;
