@@ -36,14 +36,14 @@ impl Search {
                     continue;
                 }
 
-                let bits = neighbor.number_of_bits();
+                let perms = neighbor.number_of_permutations();
 
-                if bits == goal {
+                if perms == goal {
                     reached_goal = true;
                 }
 
                 let g_cost = search_depth + 1;
-                let h_cost = self.heuristic.cost(bits);
+                let h_cost = self.heuristic.cost(perms, g_cost);
                 let f_cost = g_cost + h_cost;
 
                 open_set.add(neighbor, f_cost, g_cost);
@@ -68,13 +68,19 @@ impl Search {
     }
 
     pub fn update_heuristic(&mut self, heuristic: &Heuristic) {
-        let mut index = self.open_set.buckets_indexed_by_h_cost();
+        let mut stack = vec![];
 
-        let old_costs = self.heuristic.lower_bounds().iter();
-        let new_costs = heuristic.lower_bounds().iter();
+        while let Some(item) = self.open_set.next() {
+            stack.push(item);
+        }
 
-        for (old_h, new_h) in old_costs.zip(new_costs) {
-            self.open_set.reindex_by_h_cost(&mut index, *old_h, *new_h);
+        while let Some((candidate, g_cost)) = stack.pop() {
+            let perms = candidate.number_of_permutations();
+
+            let h_cost = heuristic.cost(perms, g_cost);
+            let f_cost = g_cost + h_cost;
+
+            self.open_set.add(candidate, f_cost, g_cost);
         }
 
         self.heuristic = heuristic.clone();

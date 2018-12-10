@@ -18,8 +18,8 @@ impl Incremental {
         let search = &mut self.search;
         let heuristic = &mut self.heuristic;
 
-        let start = candidate.number_of_bits() + 1;
-        let finish = Candidate::maximum_bits();
+        let start = candidate.number_of_permutations() + 1;
+        let finish = Candidate::maximum_permutations();
 
         search.seed(candidate);
         let mut distance = None;

@@ -8,75 +8,129 @@ mod seed {
     use super::*;
 
     #[test]
-    fn it_sets_the_starting_bits_to_n_minus_one() {
+    fn it_sets_starting_perms_from_the_seed_candidate() {
         let subject = Subject::seed();
-        assert_eq!(subject.starting_bits, 4);
+        let expected = Candidate::seed().number_of_permutations();
+
+        assert_eq!(subject.starting_perms, expected);
     }
 
     #[test]
-    fn it_sets_the_starting_lower_bounds_based_on_the_starting_bits(){
+    fn it_sets_the_length_of_max_depth_so_that_the_next_goal_can_be_used_as_an_index() {
+        let subject = Subject::seed();
+        let expected = subject.next_goal() + 1;
+
+        assert_eq!(subject.max_depths.len(), expected);
+    }
+
+    #[test]
+    fn it_sets_the_length_of_lower_bounds_so_that_the_next_goal_can_be_used_as_an_index() {
+        let subject = Subject::seed();
+        let expected = subject.next_goal() + 1;
+
+        assert_eq!(subject.lower_bounds.len(), expected);
+    }
+
+    #[test]
+    fn it_sets_max_depth_elements_to_zero() {
+        let subject = Subject::seed();
+        assert_eq!(subject.max_depths, &[0, 0, 0]);
+    }
+
+    #[test]
+    fn it_sets_lower_bounds_to_descending_distances() {
         let subject = Subject::seed();
 
-        // The first goal is five bits and the candidate starts with four so if
+        // The first goal is two perms and the candidate starts with one so if
         // the search goes in the opposite direction we know that at a minimum
         // it needs to travel that many units of distance back again.
-        assert_eq!(subject.lower_bounds, &[5, 4, 3, 2, 1, 0]);
-                                     //    ^  ^        ^-- We start at least one
-                                     //    |  |            unit from the goal.
-                                     //    |  |
-                                     //  These aren't actually possible because
-                                     //  bitmaps always have at least two bits.
-    }
-
-    #[test]
-    fn it_knows_that_the_shortest_path_to_add_zero_bits_has_zero_length() {
-        let subject = Subject::seed();
-        assert_eq!(subject.distances, &[0]);
+        assert_eq!(subject.lower_bounds, &[2, 1, 0]);
+                                          //  ^-- We start at least one
+                                          //      away from the goal.
     }
 }
 
 mod cost {
     use super::*;
 
-    #[test]
-    fn it_returns_the_lower_bound_for_the_given_number_of_bits() {
-        let subject = Subject::seed();
+    //  The following tests use this graph of number of perms vs. distance:
+    //    (see the #improve_based_on tests below for more explanation)
+    //
+    //           |            o (5, 6)
+    //           |           /
+    //           |          x (4, 5)
+    //           |          |
+    //           |          x (4, 4)
+    //           |         /
+    //  distance |        x (3, 3)
+    //           |       /
+    //           |      x (2, 2)
+    //           |      |
+    //           |      x (2, 1)
+    //           |     /
+    //           |____x_(1, 0)____________
+    //
+    //            number of perms
 
-        assert_eq!(subject.cost(4), 1);
-        assert_eq!(subject.cost(3), 2);
-        assert_eq!(subject.cost(2), 3);
-    }
-}
-
-mod first_goal {
-    use super::*;
-
-    #[test]
-    fn it_returns_the_number_of_bits_in_the_first_subgoal() {
+    fn setup() -> Subject {
         let mut subject = Subject::seed();
-        assert_eq!(subject.first_goal(), 5);
 
         subject.improve_based_on(1);
-        assert_eq!(subject.first_goal(), 5);
+        subject.improve_based_on(3);
+        subject.improve_based_on(4);
 
-        subject.improve_based_on(2);
-        assert_eq!(subject.first_goal(), 5);
+        subject
     }
-}
-
-mod next_goal {
-    use super::*;
 
     #[test]
-    fn it_returns_the_number_of_bits_in_the_next_subgoal() {
-        let mut subject = Subject::seed();
-        assert_eq!(subject.next_goal(), 5);
+    fn it_returns_the_shortest_distance_for_candidates_on_the_optimal_path() {
+        let subject = setup();
 
-        subject.improve_based_on(1);
-        assert_eq!(subject.next_goal(), 6);
+        assert_eq!(subject.cost(4, 5), 1);
+        assert_eq!(subject.cost(4, 4), 2);
+        assert_eq!(subject.cost(3, 3), 3);
+        assert_eq!(subject.cost(2, 2), 4);
+        assert_eq!(subject.cost(2, 1), 5);
+        assert_eq!(subject.cost(1, 0), 6);
+    }
 
-        subject.improve_based_on(2);
-        assert_eq!(subject.next_goal(), 7);
+    #[test]
+    fn it_returns_the_shortest_distance_for_candidates_off_the_optimal_path() {
+        let subject = setup();
+
+        assert_eq!(subject.cost(4, 6), 1);
+        assert_eq!(subject.cost(4, 7), 1);
+        assert_eq!(subject.cost(4, 8), 1);
+
+        assert_eq!(subject.cost(2, 6), 4);
+        assert_eq!(subject.cost(2, 7), 4);
+        assert_eq!(subject.cost(2, 8), 4);
+
+        assert_eq!(subject.cost(1, 3), 6);
+        assert_eq!(subject.cost(1, 4), 6);
+        assert_eq!(subject.cost(1, 5), 6);
+    }
+
+    #[test]
+    fn it_returns_zero_distance_if_already_at_the_goal() {
+        let subject = setup();
+
+        assert_eq!(subject.cost(5, 4), 0);
+        assert_eq!(subject.cost(5, 5), 0);
+        assert_eq!(subject.cost(5, 6), 0);
+        assert_eq!(subject.cost(5, 7), 0);
+        assert_eq!(subject.cost(5, 8), 0);
+    }
+
+    #[test]
+    fn it_returns_the_cumulative_distance_for_candidates_with_less_than_starting_perms() {
+        let subject = setup();
+        let distance_from_start = 6;
+
+        assert_eq!(subject.cost(0, 0), 1 + distance_from_start);
+        assert_eq!(subject.cost(0, 1), 1 + distance_from_start);
+        assert_eq!(subject.cost(0, 2), 1 + distance_from_start);
+        assert_eq!(subject.cost(0, 3), 1 + distance_from_start);
     }
 }
 
@@ -84,139 +138,224 @@ mod improve_based_on {
     use super::*;
 
     #[test]
-    fn it_adds_the_new_distances_to_its_shortest_path_distances() {
+    fn it_adds_the_new_distance_to_its_shortest_path_distances() {
         let mut subject = Subject::seed();
 
         subject.improve_based_on(1);
         assert_eq!(subject.distances, &[0, 1]);
 
-        subject.improve_based_on(2);
-        assert_eq!(subject.distances, &[0, 1, 2]);
-
-        subject.improve_based_on(4);
-        assert_eq!(subject.distances, &[0, 1, 2, 4]);
+        subject.improve_based_on(3);
+        assert_eq!(subject.distances, &[0, 1, 3]);
     }
 
     #[test]
-    fn it_adds_a_new_lower_bound_of_zero_for_the_next_subgoal() {
+    fn it_adds_a_new_max_depth_for_the_next_goal() {
         let mut subject = Subject::seed();
-        assert_eq!(subject.lower_bounds.len(), 6);
+        let previous = subject.max_depths.len();
 
         subject.improve_based_on(1);
-        assert_eq!(subject.lower_bounds.len(), 7);
-        assert_eq!(subject.lower_bounds.last().unwrap(), &0);
+        assert_eq!(subject.max_depths.len(), previous + 1);
     }
 
     #[test]
-    fn it_increases_the_previous_lower_bounds() {
+    fn it_sets_the_new_max_depth_to_zero_for_the_next_goal() {
         let mut subject = Subject::seed();
-        assert_eq!(&subject.lower_bounds[4..], &[1, 0]);
 
         subject.improve_based_on(1);
-        assert_eq!(&subject.lower_bounds[4..], &[2, 1, 0]);
 
-        subject.improve_based_on(2);
-        assert_eq!(&subject.lower_bounds[4..], &[3, 2, 1, 0]);
+        // If we're at the goal, we want #cost to return 0, so set max_depth to
+        // 0 for the index of the goal so that no additional distance is added.
+        assert_eq!(subject.max_depths.last(), Some(&0));
     }
 
     #[test]
-    fn it_updates_the_lower_bounds_taking_into_account_previous_gaps() {
+    fn it_keeps_a_max_depth_of_zero_for_indexes_below_starting_perms() {
         let mut subject = Subject::seed();
 
         subject.improve_based_on(1);
-        assert_eq!(&subject.lower_bounds[4..], &[2, 1, 0]);
+
+        // This is a bit of a special case and it suffices to set this to 0 so
+        // that #cost returns the same value, regardless of search depth.
+        assert_eq!(&subject.max_depths[..1], &[0]);
+    }
+
+    #[test]
+    fn it_sets_max_depth_to_the_furthest_distance_from_the_start_for_each_number_of_perms() {
+        let mut subject = Subject::seed();
+
+        subject.improve_based_on(1);
+        assert_eq!(&subject.max_depths[1..], &[0, 1, 0]);
+
+        //   Graph of number of perms vs. distance:
+        //
+        //
+        //           |        o (3, 2)     <-- best lower bound for 3 perms
+        //           |       /
+        //  distance |      x (2, 1)       <-- max depth for 2 perms is 1
+        //           |     /
+        //           |____x_(1, 0)__       <-- max depth for 1 perm is 0
+        //
+        //            number of perms
+
 
         subject.improve_based_on(3);
-        assert_eq!(&subject.lower_bounds[4..], &[4, 3, 1, 0]);
+        assert_eq!(&subject.max_depths[1..], &[0, 2, 3, 0]);
 
-        //   Graph of number of bits vs. distance:
+        //   Graph of number of perms vs. distance:
         //
-        //          |     o           <-- lower bound for 6 bits
-        // distance |    x (5, 3)     <-- needs to travel at least 1 distance
-        //          |
-        //          |   x (4, 1)      <--   "   "    "    "    "   3 distance
-        //          |__x___________   <--   "   "    "    "    "   4 distance
-        //             (3, 0)
         //
-        //           number of bits
+        //           |          o (4, 4)   <-- best lower bound for 4 perms
+        //           |         /
+        //           |        x (3, 3)     <-- max depth for 3 perms is 3
+        //           |       /
+        //  distance |      x (2, 2)       <-- max depth for 2 perms is 2
+        //           |      |
+        //           |      x (2, 1)
+        //           |     /
+        //           |____x_(1, 0)__       <-- max depth for 1 perm is 0
+        //
+        //            number of perms
     }
 
     #[test]
-    fn it_sets_higher_lower_bounds_when_there_was_a_previous_gap_in_distance() {
+    fn it_adds_a_new_lower_bound_for_the_next_goal() {
+        let mut subject = Subject::seed();
+        let previous = subject.lower_bounds.len();
+
+        subject.improve_based_on(1);
+        assert_eq!(subject.lower_bounds.len(), previous + 1);
+    }
+
+    #[test]
+    fn it_sets_the_new_lower_bound_to_zero_for_the_next_goal() {
         let mut subject = Subject::seed();
 
         subject.improve_based_on(1);
-        assert_eq!(&subject.lower_bounds[4..], &[2, 1, 0]);
+
+        // If we're at the goal, we want #cost to return 0.
+        assert_eq!(subject.lower_bounds.last(), Some(&0));
+    }
+
+    #[test]
+    fn it_adds_the_full_shortest_path_distance_for_indexes_below_starting_perms() {
+        let mut subject = Subject::seed();
+        assert_eq!(&subject.lower_bounds[..1], &[2]);
+
+        subject.improve_based_on(1);
+
+        // This is a bit of a special case. We can reach the goal if we travel
+        // back to the starting perms, then take the shortest path to the goal.
+        assert_eq!(&subject.lower_bounds[..1], &[3]);
 
         subject.improve_based_on(3);
-        assert_eq!(&subject.lower_bounds[4..], &[4, 3, 1, 0]);
-
-        subject.improve_based_on(4);
-        assert_eq!(&subject.lower_bounds[4..], &[6, 5, 3, 2, 0]);
-
-        //   Graph of number of bits vs. distance:
-        //
-        //          |      o          <-- lower bound for 7 bits is +2 because of 4 to 5 bits
-        //          |
-        //          |     x (6, 4)    <-- needs to travel at least 2 distance
-        // distance |    x (5, 3)     <--   "   "    "    "    "   3 distance
-        //          |
-        //          |   x (4, 1)      <--   "   "    "    "    "   5 distance
-        //          |__x___________   <--   "   "    "    "    "   6 distance
-        //             (3, 0)
-        //
-        //           number of bits
+        assert_eq!(&subject.lower_bounds[..1], &[5]);
     }
 
     #[test]
-    fn it_sets_the_lower_bound_from_the_biggest_previous_gap_it_finds() {
+    fn it_sets_lower_bound_to_the_nearest_distance_to_the_end_for_each_number_of_perms() {
         let mut subject = Subject::seed();
 
         subject.improve_based_on(1);
-        subject.improve_based_on(3);  // gap of 2
-        subject.improve_based_on(4);
-        subject.improve_based_on(7);  // gap of 3
-        subject.improve_based_on(8);
-        subject.improve_based_on(10); // gap of 2
-        subject.improve_based_on(11);
+        assert_eq!(&subject.lower_bounds[1..], &[2, 1, 0]);
 
-        assert_eq!(&subject.lower_bounds[4..], &[14, 13, 11, 10, 7, 6, 4, 3, 0]);
+        //   Graph of number of perms vs. distance:
+        //
+        //
+        //           |        o (3, 2)     <-- 3 perms is the goal
+        //           |       /
+        //  distance |      x (2, 1)       <-- 2 perms is 1 away from the goal
+        //           |     /
+        //           |____x_(1, 0)__       <-- 1 perm is 2 away from the goal
+        //
+        //            number of perms
 
-        //   Graph of number of bits vs. distance:
+
+        subject.improve_based_on(3);
+        assert_eq!(&subject.lower_bounds[1..], &[4, 2, 1, 0]);
+
+        //   Graph of number of perms vs. distance:
         //
-        //          |          o            <-- lower bound for 11 bits is +3
-        //          |                           because of 6 to 7 bits
-        //          |
-        //          |         x (10, 11)    <-- needs to travel at least 3 distance
-        //          |        x (9, 10)      <--   "   "    "    "    "   4 distance
-        // distance |
-        //          |       x (8, 8)        <--   "   "    "    "    "   6 distance
-        //          |      x (7, 7)         <--   "   "    "    "    "   7 distance
-        //          |
-        //          |
-        //          |     x (6, 4)          <--   "   "    "    "    "   10 distance
-        //          |    x (5, 3)           <--   "   "    "    "    "   11 distance
-        //          |
-        //          |   x (4, 1)            <--   "   "    "    "    "   13 distance
-        //          |__x___________         <--   "   "    "    "    "   14 distance
-        //             (3, 0)
         //
-        //           number of bits
+        //           |          o (4, 4)   <-- 4 perms is the goal
+        //           |         /
+        //           |        x (3, 3)     <-- 3 perms is 1 away from the goal
+        //           |       /
+        //  distance |      x (2, 2)       <-- 2 perms is 2 away from the goal
+        //           |      |
+        //           |      x (2, 1)
+        //           |     /
+        //           |____x_(1, 0)__       <-- 1 perm is 4 away from the goal
+        //
+        //            number of perms
     }
 
     #[test]
-    fn it_increases_the_lower_bounds_for_candidates_with_fewer_than_the_starting_bits() {
+    fn it_increases_the_lower_bound_of_the_next_goal_based_on_previous_knowledge() {
         let mut subject = Subject::seed();
 
         subject.improve_based_on(1);
-        subject.improve_based_on(3);  // gap of 2
+        subject.improve_based_on(3);
         subject.improve_based_on(4);
-        subject.improve_based_on(7);  // gap of 3
-        subject.improve_based_on(8);
-        subject.improve_based_on(10); // gap of 2
-        subject.improve_based_on(11);
 
-        // I think this is the right thing to do, but I'm not 100% sure.
-        assert_eq!(&subject.lower_bounds, &[21, 18, 17, 15, 14, 13, 11, 10, 7, 6, 4, 3, 0]);
+        //   Graph of number of perms vs. distance:
+        //
+        //
+        //           |            o (5, 6)  <--    best lower bound for 5 perms is
+        //           |           /             \   higher, because we know that...
+        //           |          x (4, 5)        |
+        //           |          |               |- ...we're about to add another
+        //           |          x (4, 4)        |     2 perms from here and...
+        //           |         /               /
+        //           |        x (3, 3)      <--
+        //           |       /                  \
+        //  distance |      x (2, 2)             |
+        //           |      |                    |- ...here we added 2 perms
+        //           |      x (2, 1)             |     which required 3 distance
+        //           |     /                    /
+        //           |____x_(1, 0)__        <--
+        //
+        //            number of perms
+
+        assert_eq!(subject.max_depths, &[0, 0, 2, 3, 5, 0]);
+                                                   //         ^
+                                                   // this is higher because
+                                                   // of the higher lower bound
+
+        assert_eq!(subject.lower_bounds, &[7, 6, 4, 3, 1, 0]);
+                                        // ^  ^  ^  ^
+                                        // these are further away because
+                                        // of the higher lower bound
+    }
+}
+
+mod first_goal {
+    use super::*;
+
+    #[test]
+    fn it_returns_the_number_of_perms_in_the_first_subgoal() {
+        let mut subject = Subject::seed();
+        assert_eq!(subject.first_goal(), 2);
+
+        subject.improve_based_on(1);
+        assert_eq!(subject.first_goal(), 2);
+
+        subject.improve_based_on(2);
+        assert_eq!(subject.first_goal(), 2);
+    }
+}
+
+mod next_goal {
+    use super::*;
+
+    #[test]
+    fn it_returns_the_number_of_perms_in_the_next_subgoal() {
+        let mut subject = Subject::seed();
+        assert_eq!(subject.next_goal(), 2);
+
+        subject.improve_based_on(1);
+        assert_eq!(subject.next_goal(), 3);
+
+        subject.improve_based_on(2);
+        assert_eq!(subject.next_goal(), 4);
     }
 }

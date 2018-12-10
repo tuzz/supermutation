@@ -16,11 +16,11 @@ fn subject(candidate: &Candidate) -> Subject {
 }
 
 fn simplified_heuristic() -> Heuristic {
-    Heuristic::new(4, vec![0], vec![5, 4, 3, 2, 1, 0, 0, 0, 0, 0])
+    Heuristic::new(4, vec![0], vec![2, 1, 0, 0, 0, 0, 0], vec![0, 0, 0, 0, 0, 0, 0])
 }
 
 fn updated_heuristic() -> Heuristic {
-    Heuristic::new(4, vec![0], vec![5, 4, 3, 2, 999, 0, 0, 0, 0, 0])
+    Heuristic::new(4, vec![0], vec![2, 999, 0, 0, 0, 0, 0], vec![0, 0, 0, 0, 0, 0, 0])
 }
 
 mod seed {
@@ -43,11 +43,11 @@ mod shortest_path {
     use super::*;
 
     #[test]
-    fn it_finds_the_length_of_the_shortest_path_to_the_goal_number_of_bits() {
+    fn it_finds_the_length_of_the_shortest_path_to_the_goal_number_of_permutations() {
         let start = Candidate::seed();
         let subject = &mut subject(&start);
 
-        let mut goal = start.number_of_bits() + 1;         // shortest path:
+        let mut goal = start.number_of_permutations() + 1; // shortest path:
         assert_eq!(subject.shortest_path(goal), Some(1));  // 012340
 
         goal += 1;
@@ -68,7 +68,7 @@ mod shortest_path {
         let start = Candidate::seed();
         let subject = &mut subject(&start);
 
-        let mut goal = start.number_of_bits() + 1;
+        let mut goal = start.number_of_permutations() + 1;
         subject.shortest_path(goal);
 
         assert_eq!(subject.open_set.len(), 4);
@@ -86,23 +86,22 @@ mod shortest_path {
         let start = Candidate::seed();
         let subject = &mut subject(&start);
 
-
-        let goal = start.number_of_bits() + 1;
+        let goal = start.number_of_permutations() + 1;
         subject.shortest_path(goal);
-                                                    // b  f  g  h
-        assert_eq!(next_bits_and_costs(subject), Some((5, 1, 1, 0)));
-        assert_eq!(next_bits_and_costs(subject), Some((4, 2, 1, 1)));
-        assert_eq!(next_bits_and_costs(subject), Some((3, 3, 1, 2)));
-        assert_eq!(next_bits_and_costs(subject), Some((2, 4, 1, 3)));
-        assert_eq!(next_bits_and_costs(subject), None);
+                                                     // p  f  g  h
+        assert_eq!(next_perms_and_costs(subject), Some((2, 1, 1, 0)));
+        assert_eq!(next_perms_and_costs(subject), Some((1, 2, 1, 1)));
+        assert_eq!(next_perms_and_costs(subject), Some((1, 2, 1, 1)));
+        assert_eq!(next_perms_and_costs(subject), Some((1, 2, 1, 1)));
+        assert_eq!(next_perms_and_costs(subject), None);
     }
 
-    fn next_bits_and_costs(subject: &mut Subject) -> Option<(usize, usize, usize, usize)> {
+    fn next_perms_and_costs(subject: &mut Subject) -> Option<(usize, usize, usize, usize)> {
         let f_cost = subject.open_set.minimum_f_cost()?;
         let (candidate, g_cost) = subject.open_set.next()?;
         let h_cost = f_cost - g_cost;
 
-        Some((candidate.number_of_bits(), f_cost, g_cost, h_cost))
+        Some((candidate.number_of_permutations(), f_cost, g_cost, h_cost))
     }
 }
 
@@ -112,7 +111,7 @@ mod open_set_len {
     #[test]
     fn it_returns_the_number_of_candidates_in_the_open_set() {
         let start = Candidate::seed();
-        let goal = start.number_of_bits() + 1;
+        let goal = start.number_of_permutations() + 1;
 
         let subject = &mut subject(&start);
         assert_eq!(subject.open_set_len(), 1);
@@ -128,7 +127,7 @@ mod closed_set_len {
     #[test]
     fn it_returns_the_number_of_candidates_in_the_closed_set() {
         let start = Candidate::seed();
-        let goal = start.number_of_bits() + 1;
+        let goal = start.number_of_permutations() + 1;
 
         let subject = &mut subject(&start);
         assert_eq!(subject.closed_set_len(), 0);
@@ -182,7 +181,7 @@ mod update_heuristic {
     #[test]
     fn it_does_not_reorder_candidates_in_buckets_with_the_same_g_cost() {
         let start = Candidate::seed();
-        let goal = start.number_of_bits() + 5;
+        let goal = start.number_of_permutations() + 5;
 
         let mut subject = subject(&start);
         subject.shortest_path(goal);

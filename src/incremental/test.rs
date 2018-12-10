@@ -29,34 +29,33 @@ mod shortest_path {
         });
 
         // The shortest superpermutation for four symbols is 33, but our
-        // representation doesn't count the three characters at the start:
-        assert_eq!(distance, Some(30));
+        // representation doesn't count the four characters at the start:
+        assert_eq!(distance, Some(29));
 
         assert_eq!(milestones, &[
-           (0, 3),    // The shortest path to the start candidate has length 0.
-           (1, 4),
-           (2, 5),
-           (3, 6),
-           (5, 7),
-           (6, 8),    // The shortest path to a candidate with 8 bits has length 6.
-           (7, 9),
-           (8, 10),
-           (10, 11),
-           (11, 12),
-           (12, 13),
-           (13, 14),
-           (15, 15),
-           (16, 16),
-           (18, 17),
-           (19, 18),
-           (20, 19),
-           (21, 20),
-           (23, 21),
-           (24, 22),
-           (26, 23),
-           (27, 24),
-           (28, 25),
-           (30, 26),  // The shortest path to a superpermutation has length 30.
+           (1, 2),    // The shortest path to 2 perms has length 1.
+           (2, 3),
+           (3, 4),
+           (5, 5),
+           (6, 6),
+           (7, 7),
+           (8, 8),
+           (10, 9),
+           (11, 10),
+           (12, 11),
+           (13, 12),
+           (16, 13),  // The shortest path to 13 perms has length 16.
+           (17, 14),
+           (18, 15),
+           (19, 16),
+           (21, 17),
+           (22, 18),
+           (23, 19),
+           (24, 20),
+           (26, 21),
+           (27, 22),
+           (28, 23),
+           (29, 24),  // The shortest path to a superpermutation has length 29.
         ]);
     }
 
@@ -94,5 +93,6 @@ mod shortest_path {
         let candidate = candidate.expand(0); // 012301203120132010231021302103210
 
         assert_eq!(candidate.number_of_bits(), 26);
+        assert_eq!(candidate.number_of_permutations(), 24);
     }
 }

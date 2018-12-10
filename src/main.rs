@@ -40,10 +40,7 @@ fn main() {
     let candidate = Candidate::seed();
     let mut incremental = Incremental::new(heuristic, search);
 
-    incremental.shortest_path(candidate, |distance, subgoal, search, _heuristic| {
+    incremental.shortest_path(candidate, |distance, subgoal, _search, _heuristic| {
         println!("The shortest path to {} is {}", subgoal, distance);
-        println!("Open set: {}", search.open_set_len());
-        println!("Closed set: {}", search.closed_set_len());
-        println!();
     });
 }

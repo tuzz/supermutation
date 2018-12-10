@@ -15,10 +15,6 @@ fn seen_permutation(subject: &Subject, slice: &[u8]) -> bool {
     subject.bitmap.contains(decimal)
 }
 
-fn number_of_permutations(subject: &Subject) -> usize {
-    (0..*FACTORIAL).filter(|i| subject.bitmap.contains(*i as u32)).count()
-}
-
 fn counter_bits(subject: &Subject) -> Vec<bool> {
     let range = (*FACTORIAL as u32)..*CAPACITY;
     range.map(|i| subject.bitmap.contains(i)).collect()
@@ -75,10 +71,10 @@ mod expand {
     fn it_adds_a_new_permutation_when_the_zero_symbol_is_expanded() {
         let subject = Subject::seed();
 
-        assert_eq!(number_of_permutations(&subject.expand(0)), 2);
-        assert_eq!(number_of_permutations(&subject.expand(1)), 1);
-        assert_eq!(number_of_permutations(&subject.expand(2)), 1);
-        assert_eq!(number_of_permutations(&subject.expand(3)), 1);
+        assert_eq!(subject.expand(0).number_of_permutations(), 2);
+        assert_eq!(subject.expand(1).number_of_permutations(), 1);
+        assert_eq!(subject.expand(2).number_of_permutations(), 1);
+        assert_eq!(subject.expand(3).number_of_permutations(), 1);
 
         assert_eq!(seen_permutation(&subject.expand(0), &[0, 1, 2, 3, 4]), true);
     }
@@ -90,40 +86,40 @@ mod expand {
         // The comments use the un-canonicalised form for simplicity.
 
         let candidate = subject.expand(0); // 012340
-        assert_eq!(number_of_permutations(&candidate), 2);
+        assert_eq!(candidate.number_of_permutations(), 2);
 
         let candidate = candidate.expand(0); // 0123401
-        assert_eq!(number_of_permutations(&candidate), 3);
+        assert_eq!(candidate.number_of_permutations(), 3);
 
         let candidate = candidate.expand(0); // 01234012
-        assert_eq!(number_of_permutations(&candidate), 4);
+        assert_eq!(candidate.number_of_permutations(), 4);
 
         let candidate = candidate.expand(0); // 012340123
-        assert_eq!(number_of_permutations(&candidate), 5);
+        assert_eq!(candidate.number_of_permutations(), 5);
 
         let candidate = candidate.expand(0); // 0123401234
-        assert_eq!(number_of_permutations(&candidate), 5); // <-- the same
+        assert_eq!(candidate.number_of_permutations(), 5); // <-- the same
 
         let candidate = candidate.expand(1); // 01234012341
-        assert_eq!(number_of_permutations(&candidate), 5);
+        assert_eq!(candidate.number_of_permutations(), 5);
 
         let candidate = candidate.expand(0); // 012340123410
-        assert_eq!(number_of_permutations(&candidate), 6);
+        assert_eq!(candidate.number_of_permutations(), 6);
 
         let candidate = candidate.expand(1); // 0123401234103
-        assert_eq!(number_of_permutations(&candidate), 6);
+        assert_eq!(candidate.number_of_permutations(), 6);
 
         let candidate = candidate.expand(0); // 01234012341032
-        assert_eq!(number_of_permutations(&candidate), 7);
+        assert_eq!(candidate.number_of_permutations(), 7);
 
         let candidate = candidate.expand(2); // 012340123410320
-        assert_eq!(number_of_permutations(&candidate), 7);
+        assert_eq!(candidate.number_of_permutations(), 7);
 
         let candidate = candidate.expand(1); // 0123401234103204
-        assert_eq!(number_of_permutations(&candidate), 7);
+        assert_eq!(candidate.number_of_permutations(), 7);
 
         let candidate = candidate.expand(0); // 01234012341032041
-        assert_eq!(number_of_permutations(&candidate), 8);
+        assert_eq!(candidate.number_of_permutations(), 8);
     }
 
     #[test]
@@ -154,6 +150,25 @@ mod expand {
     }
 }
 
+mod number_of_permutations {
+    use super::*;
+
+    #[test]
+    fn it_returns_the_number_of_permutations_that_have_been_seen() {
+        let subject = Subject::seed();
+        let first = subject.expand(0);
+        let second = subject.expand(1);
+        let third = subject.expand(2);
+        let fourth = subject.expand(3);
+
+        assert_eq!(subject.number_of_permutations(), 1);
+        assert_eq!(first.number_of_permutations(), 2);
+        assert_eq!(second.number_of_permutations(), 1);
+        assert_eq!(third.number_of_permutations(), 1);
+        assert_eq!(fourth.number_of_permutations(), 1);
+    }
+}
+
 mod number_of_bits {
     use super::*;
 
@@ -173,12 +188,12 @@ mod number_of_bits {
     }
 }
 
-mod maximum_bits {
+mod maximum_permutations {
     use super::*;
 
     #[test]
-    fn it_returns_the_capacity_of_the_bitmap() {
-        assert_eq!(Subject::maximum_bits(), *CAPACITY as usize);
+    fn it_returns_the_factorial_of_the_number_of_symbols() {
+        assert_eq!(Subject::maximum_permutations(), *FACTORIAL as usize);
     }
 }
 

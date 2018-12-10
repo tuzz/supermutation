@@ -38,12 +38,21 @@ impl Candidate {
         Self { bitmap }
     }
 
+    pub fn number_of_permutations(&self) -> usize {
+        self.number_of_bits() - self.number_of_counter_bits()
+    }
+
     pub fn number_of_bits(&self) -> usize {
         self.bitmap.cardinality() as usize
     }
 
-    pub fn maximum_bits() -> usize {
-        *CAPACITY as usize
+    fn number_of_counter_bits(&self) -> usize {
+        let range = (*FACTORIAL as u32)..*CAPACITY;
+        range.filter(|b| self.bitmap.contains(*b)).count()
+    }
+
+    pub fn maximum_permutations() -> usize {
+        *FACTORIAL as usize
     }
 }
 
